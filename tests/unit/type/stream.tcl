@@ -510,6 +510,22 @@ start_server {
         assert_equal $res {{lestream {{3-0 {k3 v3}}}}}
     }
 
+    test "XREAD: read last element after XDEL (issue #13628)" {
+        # Should return actual last element after XDEL of current last element
+
+        # Add 2 entries to a stream and delete last one
+        r DEL stream
+        r XADD stream 1-0 f 1
+        r XADD stream 2-0 f 2
+        r XDEL stream 2-0
+
+        # Read last entry
+        set res [r XREAD STREAMS stream +]
+
+        # Verify the last entry was read
+        assert_equal $res {{stream {{1-0 {f 1}}}}}
+    }
+
     test "XREAD: XADD + DEL should not awake client" {
         set rd [redis_deferring_client]
         r del s1
