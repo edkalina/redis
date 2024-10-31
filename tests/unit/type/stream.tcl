@@ -435,6 +435,17 @@ start_server {
 
         # verify nil is still received when reading last entry
         assert_equal [r XREAD STREAMS lestream +] {}
+
+        # case when stream created empty
+
+        # make sure the stream is not initialized
+        r DEL lestream
+
+        # create empty stream with XGROUP CREATE
+        r XGROUP CREATE lestream legroup $ MKSTREAM
+
+        # verify nil is received when reading last entry
+        assert_equal [r XREAD STREAMS lestream +] {}
     }
 
     test {XREAD last element blocking from empty stream} {
