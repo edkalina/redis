@@ -2301,19 +2301,11 @@ void xreadCommand(client *c) {
             }
             if (o) {
                 stream *s = o->ptr;
-                if (s->length) {
-                    /* We need to get the last valid ID.
-                     * It is impossible to use s->last_id because
-                     * entry with s->last_id may have been removed. */
-                    streamLastValidID(s, ids+id_idx);
-                    if (streamDecrID(&ids[id_idx]) != C_OK) {
-                        /* shouldn't happen */
-                        addReplyError(c,"the stream last element ID is 0-0");
-                        goto cleanup;
-                    }
-                } else {
-                    ids[id_idx] = s->last_id;
-                }
+                /* We need to get the last valid ID.
+                 * It is impossible to use s->last_id because
+                 * entry with s->last_id may have been removed. */
+                streamLastValidID(s, &ids[id_idx]);
+                streamDecrID(&ids[id_idx]);
             } else {
                 ids[id_idx].ms = 0;
                 ids[id_idx].seq = 0;
